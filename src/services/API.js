@@ -1,30 +1,70 @@
-import axios from 'axios';
-
-axios.defaults.baseURL = 'https://api.themoviedb.org/3/';
+const BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = '559cbcab39764ce535027da10f396384';
 
-export async function getSearchMovie(searchQuery) {
-  return await axios.get(
-    `search/movie?api_key=${API_KEY}&query=${searchQuery}`
+async function getTrendingMovies() {
+  const response = await fetch(
+    `${BASE_URL}/trending/movie/day?api_key=${API_KEY}`
+  );
+  if (response.ok) {
+    return await response.json();
+  }
+  return await Promise.reject(
+    new Error("Oops, something went wrong... We can't load trending movies :(")
   );
 }
 
-export async function getMovieDetails(movieId) {
-  return await axios.get(`/movie/${movieId}?api_key=${API_KEY}`);
-}
-
-export async function getMovieCredits(movieId) {
-  return await axios.get(`/movie/${movieId}/credits?api_key=${API_KEY}`);
-}
-
-export async function getMovieReviews(movieId) {
-  return await axios.get(`/movie/${movieId}/reviews?api_key=${API_KEY}`);
-}
-
-export const getMoviesTrending = async type => {
-  const resp = await axios.get(
-    `/trending/movie/${type}?api_key=${API_KEY}&language=en-US&include_adult=false`
+async function getMovieById(id) {
+  const response = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
+  if (response.ok) {
+    return await response.json();
+  }
+  return await Promise.reject(
+    new Error(
+      'We are sorry, but we did not find any information about movie :('
+    )
   );
+}
 
-  return resp.data;
+async function getMovieCast(id) {
+  const response = await fetch(
+    `${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`
+  );
+  if (response.ok) {
+    return await response.json();
+  }
+  return await Promise.reject(
+    new Error('We are sorry, but we did not find any information about cast :(')
+  );
+}
+
+async function getMovieReviews(id) {
+  const response = await fetch(
+    `${BASE_URL}/movie/${id}/reviews?api_key=${API_KEY}`
+  );
+  if (response.ok) {
+    return await response.json();
+  }
+  return await Promise.reject(
+    new Error('We do not have any reviews for this movie :(')
+  );
+}
+
+async function getMovieByQuery(query) {
+  const response = await fetch(
+    `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}`
+  );
+  if (response.ok) {
+    return await response.json();
+  }
+  return await Promise.reject(
+    new Error(`No results containing ${query} were found.`)
+  );
+}
+
+export {
+  getTrendingMovies,
+  getMovieById,
+  getMovieCast,
+  getMovieReviews,
+  getMovieByQuery,
 };
